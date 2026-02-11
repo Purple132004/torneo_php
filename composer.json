@@ -1,0 +1,36 @@
+{
+    "name": "codingspook/simple-rest-api",
+    "type": "project",
+    "description": "Simple REST API in PHP",
+    "keywords": [
+        "mvc",
+        "rest-api",
+        "php",
+        "template",
+        "backend",
+        "api",
+        "simple-router"
+    ],
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "codingspook"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "pecee/simple-router": "^5.4"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "echo 'Progetto inizializzato con successo!'"
+        ]
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
