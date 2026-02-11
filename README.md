@@ -1,68 +1,58 @@
 # Simple Rest API
 
-## Installazione
+Backend PHP per la gestione di tornei di calcio con bracket a eliminazione diretta. Gestisce creazione tornei, aggiunta/rimozione partecipanti, generazione automatica di match, registrazione risultati, simulazione di partite e calcolo del vincitore.
 
-### Tramite Composer create-project
-
-```bash
-composer create-project codingspook/simple-rest-api nome-progetto
-```
-
-### Setup iniziale
-
-1. **Configura il web server** per puntare alla directory `public/` (se non è già configurato)
-
-2. **Configura la connessione al database** in `config/database.php`
-
-3. **Configura il CORS** in `config/cors.php`
-
-4. **Configura le route** in `routes/index.php`
+## Librerie principali
+- PHP 8.1+ con simple-router (`pecee/simple-router`) per il routing dichiarativo e REST API.
+- PostgreSQL per persistenza dati.
+- ORM `BaseModel` con metodi CRUD (`all`, `find`, `create`, `update`, `delete`)
 
 ## Struttura del Progetto
 
 ```
-torneo_php/
+nome-progetto/
 ├── config/
-│   ├── database.php             # Configurazione database
-│   └── cors.php                 # Configurazione CORS
-├── public/
-│   └── index.php                # Entry point
+│   ├── database.php     # Configurazione database
+│   └── cors.php         # Configurazione CORS
 ├── routes/
-│   ├── index.php                # Route principale
-│   ├── matches.php              # Route partite
-│   ├── rounds.php               # Route turni
-│   ├── teams.php                # Route squadre
-│   ├── tournaments.php          # Route tornei
-│   ├── tournaments_admin.php    # Route amministrazione tornei
-│   ├── tournament_extra.php     # Route extra tornei
-│   └── users.php                # Route utenti
+│   └── index.php        # Definizione route
+├── public/
+│   └── index.php        # Entry point
 ├── src/
-│   ├── bootstrap.php            # Bootstrap dell'applicazione
+│   ├── bootstrap.php    
 │   ├── Database/
-│   │   ├── DB.php               # Classe DB
-│   │   └── JSONDB.php           # Classe JSONDB
+│   ├── ├── DB.php              #  DB
+│   │   └── JSONDB.php          #  JSONDB
 │   ├── Models/
-│   │   ├── BaseModel.php        # Classe base modelli
-│   │   ├── Match.php            # Modello Partita
-│   │   ├── Round.php            # Modello Turno
-│   │   ├── Team.php             # Modello Squadra
-│   │   ├── Tournament.php       # Modello Torneo
-│   │   ├── TournamentMatch.php  # Modello Partita Torneo
-│   │   ├── TournamentParticipant.php # Modello Partecipante Torneo
-│   │   └── User.php             # Modello Utente
-│   ├── Traits/
-│   │   ├── HasRelations.php     # Trait per relazioni
-│   │   └── WithValidate.php     # Trait per validazione
+│   │   └── BaseModel.php       #  BaseModel
 │   └── Utils/
-│       ├── Request.php          # Gestione richieste
-│       └── Response.php         # Gestione risposte JSON
-├── composer.json                # Dipendenze Composer
-├── composer.lock                # Lock file Composer
-├── .gitignore                   # File ignorati da Git
-└── README.md                    # Questo file
+│       ├── Request.php         
+│       └── Response.php        # Gestione risposte JSON
+├── composer.json        # Dipendenze Composer
+└── README.md           # Questo file
 ```
 
-## Comandi Utili
+## Funzionamento del backend
+
+### Routing e gestione delle route
+- Il routing è dichiarativo via `pecee/simple-router`
+- I metodi HTTP (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`) sono mappati tramite `Router::get()`, `Router::post()`, etc., 
+
+### Model Layer e validazione centralizzata
+- I Model estendono `BaseModel` e dichiarano le regole di validazione tramite il trait `WithValidate`. Le regole sono definite in `validationRules()`
+- Ogni operazione CRUD (`create`, `update`) chiama automaticamente `validate()` prima di eseguire la modifica, garantendo coerenza dei dati senza logica sparsa nelle route.
+
+
+### Gestione delle richieste e risposte
+- La classe `Response` gestisce tutte le risposte con `success()` e `error()`, includendo una risposta uniforme (`data`, `message`, `errors`) e stati corretti (200, 201, 400, 404, 500).
+
+### Logica di business complessa
+- I tornei seguono logiche di bracket autogenerati: quando un torneo è creato, il backend calcola il numero di round tramite i partecipanti, crea i round record e genera gli accoppiamenti del primo turno in modo casuale.
+- Quando un match riceve il risultato (goal home/away), il backend determina il vincitore e crea automaticamente il match del turno successivo.
+- Endpoint admin come `/tournaments/{id}/participants` rigenerano l'intero bracket a partire dai partecipanti correnti, verificando sempre il numero.
+
+
+## Installazione
 
 ```bash
 # Installa dipendenze
@@ -74,99 +64,3 @@ composer dump-autoload
 # Avvia server di sviluppo (PHP built-in)
 php -S localhost:8080 -t public
 ```
-
-## Utilizzo da un altro dispositivo (rete locale)
-
-Questa sezione spiega come accedere all'applicativo da un dispositivo diverso (pc/smartphone) nella stessa rete locale.
-
-### 1) Individua l'indirizzo IP del PC server
-
-- Windows: apri PowerShell o Prompt dei comandi e digita:
-
-```bash
-ipconfig
-```
-
-Annota l'indirizzo IPv4 della rete in uso (es. `192.168.1.20`).
-
-### 2) Avvia il backend in ascolto su tutte le interfacce
-
-Avvia il server PHP integrato esponendolo sulla rete locale (porta 8080):
-
-```bash
-php -S 0.0.0.0:8080 -t public
-```
-
-Ora l'API è raggiungibile da altri dispositivi all'URL:
-
-- `http://<IP_DEL_SERVER>:8080/api`
-
-Esempio: `http://192.168.1.20:8080/api`
-
-Se necessario, apri la porta 8080 nel firewall di Windows.
-
-### 3) Configura il CORS per consentire l'accesso dal frontend
-
-In [torneo php/config/cors.php](torneo%20php/config/cors.php) imposta l'origine consentita del frontend, ad esempio:
-
-```php
-// Esempio minimale
-header('Access-Control-Allow-Origin: http://192.168.1.20:5173');
-header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-```
-
-In alternativa, consenti temporaneamente tutte le origini (solo in ambienti di sviluppo):
-
-```php
-header('Access-Control-Allow-Origin: *');
-```
-
-### 4) Avvia il frontend (torneo_react) puntando al backend
-
-Nel progetto frontend imposta l'URL del backend e avvia Vite esponendolo sulla rete:
-
-```bash
-# Passi tipici
-cd torneo_react
-npm install
-
-# Crea/aggiorna .env con l'URL del backend
-echo VITE_BACKEND_URL=http://192.168.1.20:8080/api > .env
-
-# Avvia Vite esponendo l'host sulla rete locale
-npm run dev -- --host
-```
-
-Il frontend sarà raggiungibile da altri dispositivi all'URL:
-
-- `http://<IP_DEL_SERVER>:5173`
-
-Esempio: `http://192.168.1.20:5173`
-
-Assicurati che il dispositivo client sia nella stessa rete e che non ci siano blocchi firewall sulla porta 5173.
-
-### 5) Suggerimenti per produzione (opzionale)
-
-- Esegui un web server (Nginx/Apache) per il backend invece del server PHP integrato.
-- Esegui il build del frontend e servi i file statici:
-
-```bash
-cd torneo_react
-npm run build
-# Servi la cartella dist con un server statico o integrala nel web server
-```
-
-Aggiorna `VITE_BACKEND_URL` verso l'URL pubblico del backend.
-
-## Licenza
-
-MIT
-
-## Supporto
-
-Per domande o problemi, consulta la documentazione o apri una issue sul repository.
-
----
-
-**Buon coding! 🚀**
