@@ -21,26 +21,45 @@ composer create-project codingspook/simple-rest-api nome-progetto
 ## Struttura del Progetto
 
 ```
-nome-progetto/
+torneo_php/
 ├── config/
-│   ├── database.php     # Configurazione database
-│   └── cors.php         # Configurazione CORS
-├── routes/
-│   └── index.php        # Definizione route
+│   ├── database.php             # Configurazione database
+│   └── cors.php                 # Configurazione CORS
 ├── public/
-│   └── index.php        # Entry point
+│   └── index.php                # Entry point
+├── routes/
+│   ├── index.php                # Route principale
+│   ├── matches.php              # Route partite
+│   ├── rounds.php               # Route turni
+│   ├── teams.php                # Route squadre
+│   ├── tournaments.php          # Route tornei
+│   ├── tournaments_admin.php    # Route amministrazione tornei
+│   ├── tournament_extra.php     # Route extra tornei
+│   └── users.php                # Route utenti
 ├── src/
-│   ├── bootstrap.php    # Bootstrap dell'applicazione
+│   ├── bootstrap.php            # Bootstrap dell'applicazione
 │   ├── Database/
-│   ├── ├── DB.php              # Classe DB
-│   │   └── JSONDB.php          # Classe JSONDB
+│   │   ├── DB.php               # Classe DB
+│   │   └── JSONDB.php           # Classe JSONDB
 │   ├── Models/
-│   │   └── BaseModel.php       # Classe BaseModel
+│   │   ├── BaseModel.php        # Classe base modelli
+│   │   ├── Match.php            # Modello Partita
+│   │   ├── Round.php            # Modello Turno
+│   │   ├── Team.php             # Modello Squadra
+│   │   ├── Tournament.php       # Modello Torneo
+│   │   ├── TournamentMatch.php  # Modello Partita Torneo
+│   │   ├── TournamentParticipant.php # Modello Partecipante Torneo
+│   │   └── User.php             # Modello Utente
+│   ├── Traits/
+│   │   ├── HasRelations.php     # Trait per relazioni
+│   │   └── WithValidate.php     # Trait per validazione
 │   └── Utils/
-│       ├── Request.php         # Classe Request
-│       └── Response.php        # Gestione risposte JSON
-├── composer.json        # Dipendenze Composer
-└── README.md           # Questo file
+│       ├── Request.php          # Gestione richieste
+│       └── Response.php         # Gestione risposte JSON
+├── composer.json                # Dipendenze Composer
+├── composer.lock                # Lock file Composer
+├── .gitignore                   # File ignorati da Git
+└── README.md                    # Questo file
 ```
 
 ## Comandi Utili
