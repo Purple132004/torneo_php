@@ -12,9 +12,7 @@ class User extends BaseModel {
     public ?string $name = null;
     public ?string $email = null;
 
-    /**
-     * Nome della collection
-     */
+   
     protected static ?string $table = "users";
 
     public function __construct(array $data = []) {

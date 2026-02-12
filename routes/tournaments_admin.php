@@ -51,7 +51,7 @@ Router::delete('/tournaments/{id}', function($id) {
         $t = Tournament::find((int)$id);
         if ($t === null) { Response::error('Torneo non trovato', Response::HTTP_NOT_FOUND)->send(); return; }
 
-        // elimina tramite modello (usa DB::delete internamente)
+        
         $t->delete();
         Response::success(null, Response::HTTP_OK, 'Torneo eliminato')->send();
     } catch (\Exception $e) {
@@ -62,7 +62,6 @@ Router::delete('/tournaments/{id}', function($id) {
 
 /**
  * POST /api/tournaments/{id}/participants - aggiungi partecipanti e rigenera bracket
- * body: { participants: [1,2,...] }
  */
 Router::post('/tournaments/{id}/participants', function($id) {
     try {
@@ -87,13 +86,13 @@ Router::post('/tournaments/{id}/participants', function($id) {
         if ($count > 16) { Response::error('Il numero massimo di partecipanti è 16', Response::HTTP_BAD_REQUEST)->send(); return; }
         if (!($count > 0 && (($count & ($count - 1)) === 0))) { Response::error('Il numero di partecipanti deve essere potenza di 2', Response::HTTP_BAD_REQUEST)->send(); return; }
 
-        // verifica esistenza team usando placeholder dinamici
+        
         $in = DB::buildInClause($newIds, 'id');
         $sql = 'SELECT id FROM teams WHERE id IN (' . $in['clause'] . ') AND deleted_at IS NULL';
         $rows = DB::select($sql, $in['bindings']);
         if (count($rows) !== $count) { Response::error('Alcuni team non esistono o sono eliminati', Response::HTTP_BAD_REQUEST)->send(); return; }
 
-        // riscrivi pivot
+        
         DB::delete('DELETE FROM tournament_participants WHERE tournament_id = :tid', ['tid' => $t->id]);
         foreach ($newIds as $pid) {
             TournamentParticipant::create(['tournament_id' => $t->id, 'team_id' => (int)$pid]);
@@ -178,7 +177,7 @@ Router::get('/tournaments/{id}/winner', function($id) {
             return;
         }
 
-        // fallback: calcola dalla finale
+        
         $last = DB::select('SELECT * FROM rounds WHERE tournament_id = :tid ORDER BY round_number DESC LIMIT 1', ['tid' => (int)$id]);
         if (empty($last)) { Response::error('Nessun round trovato', Response::HTTP_NOT_FOUND)->send(); return; }
         $finalRound = $last[0];

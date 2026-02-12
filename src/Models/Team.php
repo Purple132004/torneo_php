@@ -20,7 +20,6 @@ class Team extends BaseModel
         return [
             'name' => ['required', 'min:1', 'max:150'],
             'city' => ['sometimes', 'min:1', 'max:100'],
-            // icon identifier from lucide icons (string key)
             'icon' => ['required', 'min:1', 'max:100'],
         ];
     }

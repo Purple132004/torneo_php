@@ -38,7 +38,6 @@ Router::get('/tournaments/{id}', function($id) {
         $rounds = DB::select('SELECT * FROM rounds WHERE tournament_id = :tid ORDER BY round_number', ['tid' => $t->id]);
         $payload = $t->toArray();
         $payload['rounds'] = [];
-        // prepara etichette round (Quarti, Semifinali, Finale, ...)
         $rc = (int) (log((int)$t->participants_count, 2));
         $labels = [];
         if ($rc === 4) $labels = ['Ottavi', 'Quarti', 'Semifinali', 'Finale'];
@@ -59,8 +58,7 @@ Router::get('/tournaments/{id}', function($id) {
 });
 
 /**
- * POST /api/tournaments - crea torneo e genera bracket
- * body: { name, date (YYYY-MM-DD), location, participants: [team_id,...] }
+ * POST /api/tournaments - crea torneo e genera bracket}
  */
 Router::post('/tournaments', function() {
     try {
@@ -85,7 +83,6 @@ Router::post('/tournaments', function() {
         }
 
         // verifica esistenza team e che non siano cancellati
-        // PDO non supporta il binding diretto di array per :ids su IN/ANY, quindi costruiamo placeholder dinamici
         $placeholders = [];
         $bindings = [];
         foreach ($participants as $idx => $pid) {
@@ -130,7 +127,7 @@ Router::post('/tournaments', function() {
             $roundIds[$r] = $round->id;
         }
 
-        // genera accoppiamenti primo turno (casuale)
+        // genera accoppiamenti primo turno
         shuffle($participants);
         $order = 0;
         for ($i = 0; $i < count($participants); $i += 2) {
@@ -145,7 +142,7 @@ Router::post('/tournaments', function() {
             ]);
         }
 
-        // risposta: torneo creato con primo round
+
         $payload = $tournament->toArray();
         $payload['rounds'] = [
             'round_1' => DB::select('SELECT * FROM matches WHERE round_id = :rid ORDER BY match_order', ['rid' => $roundIds[1]])

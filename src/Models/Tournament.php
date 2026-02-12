@@ -10,7 +10,7 @@ class Tournament extends BaseModel
     use WithValidate;
 
     public ?string $name = null;
-    public ?string $date = null; // YYYY-MM-DD
+    public ?string $date = null; 
     public ?string $location = null;
     public ?int $participants_count = null;
     public ?string $status = 'in_corso';
@@ -28,8 +28,8 @@ class Tournament extends BaseModel
     }
 
     /**
-     * Recupera i partecipanti del torneo
-     * @return array of Team
+     * 
+     * @return array 
      */
     public function participants(): array
     {

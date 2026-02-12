@@ -99,7 +99,7 @@ Router::delete('/teams/{id}', function($id) {
             return;
         }
 
-        // nessuna partecipazione -> elimina fisicamente
+        // nessuna partecipazione -> elimina 
         $team->delete();
         Response::success(null, Response::HTTP_OK, 'Team eliminato') -> send();
     } catch (\Exception $e) {

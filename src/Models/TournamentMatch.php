@@ -48,12 +48,11 @@ class TournamentMatch extends BaseModel
         }
         $this->save();
 
-        // dopo aver salvato il risultato, promuovi il vincitore al match successivo (se esiste)
         $this->promoteWinner();
     }
 
     /**
-     * Recupera la riga della round per questa partita
+     * 
      * @return array|null
      */
     protected function getRoundRow(): ?array
@@ -62,13 +61,11 @@ class TournamentMatch extends BaseModel
         return $rows[0] ?? null;
     }
 
-    /**
-     * Promuove il vincitore della partita al match successivo nel torneo
-     */
+    
     protected function promoteWinner(): void
     {
         if ($this->winner_team_id === null) {
-            return; // niente da promuovere
+            return; 
         }
 
         $round = $this->getRoundRow();
@@ -81,7 +78,6 @@ class TournamentMatch extends BaseModel
         $nextRoundNumber = $currentRoundNumber + 1;
         $nextRounds = DB::select('SELECT * FROM rounds WHERE tournament_id = :tid AND round_number = :rn', ['tid' => $tournamentId, 'rn' => $nextRoundNumber]);
         if (empty($nextRounds)) {
-            // finale raggiunta: marca torneo come concluso e imposta vincitore
             DB::update('UPDATE tournaments SET status = :st, winner_team_id = :wid, updated_at = now() WHERE id = :id', [
                 'st' => 'concluso',
                 'wid' => $this->winner_team_id,
@@ -92,14 +88,11 @@ class TournamentMatch extends BaseModel
 
         $nextRound = $nextRounds[0];
 
-        // calcola match_order nella prossima fase (gruppo di due match -> 1 match)
         $targetOrder = (int) ceil($this->match_order / 2);
 
-        // cerca match esistente con quel order
         $existing = DB::select('SELECT * FROM matches WHERE round_id = :rid AND match_order = :mo', ['rid' => $nextRound['id'], 'mo' => $targetOrder]);
 
         if (empty($existing)) {
-            // crea nuovo match e assegna il vincitore come home o away in base alla parità dell'ordine attuale
             $home = ($this->match_order % 2 === 1) ? $this->winner_team_id : null;
             $away = ($this->match_order % 2 === 0) ? $this->winner_team_id : null;
 
@@ -113,7 +106,6 @@ class TournamentMatch extends BaseModel
             $row = $existing[0];
             $match = new self($row);
 
-            // se il posto home è vuoto e il vincitore deve andarci
             if ($this->match_order % 2 === 1) {
                 if ($match->home_team_id === null) {
                     $match->home_team_id = $this->winner_team_id;

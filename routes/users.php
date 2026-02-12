@@ -1,11 +1,5 @@
 <?php
 
-// CLIENT HTTP REQUEST -> fetch
-// BACKEND -> handles request (builds and sends response)
-// CLIENT HTTP handles response -> does something
-
-/* Routes per gestione utenti */
-
 
 use App\Utils\Response;
 use App\Models\User;
